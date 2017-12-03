@@ -207,7 +207,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 	  end
 	  
 	  DEC:  begin   // R[ir(8:6)] <- R[ir(2:0)] -1 -- LED pattern = {ps_N,ps_Z,ps_C,5'b00111}
-			W_adr 	= IR[8:6];	 R_adr = 3'b00; S_adr = IR[2:0];
+			W_addr 	= IR[8:6];	 R_addr = 3'b00; S_addr = IR[2:0];
 			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
 			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0011;
