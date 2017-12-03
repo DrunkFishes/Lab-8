@@ -21,7 +21,7 @@
 
 //*************************************************************************
 module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
-			 W_Adr, R_Adr, S_Adr,                    // these are
+			 W_addr, R_addr, S_addr,                    // these are
 			 adr_sel, s_sel,                         // the control
 			 pc_ld, pc_inc, pc_sel, ir_ld,           // word output
 			 mw_en, rw_en, alu_op,                   // fields
@@ -31,7 +31,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 	input         clk, reset;                    // clock and reset
 	input  [15:0] IR;                            // instruction register input
 	input         N, Z, C;                       // datapath status inputs
-	output  [2:0] W_Adr, R_Adr, S_Adr;           // register file address outputs
+	output  [2:0] W_addr, R_addr, S_addr;           // register file address outputs
 	output        adr_sel, s_sel;                // mux select outputs
 	output        pc_ld, pc_inc, pc_sel, ir_ld;  // pc load, pcinc, pc select, ir load
 	output        mw_en, rw_en;                  // memory_write, register_file write
@@ -42,7 +42,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 	 *      data structures      *
 	 *****************************/
 	 
-	reg     [2:0]  W_Adr, R_Adr, S_Adr;  // these 12
+	reg     [2:0]  W_addr, R_addr, S_addr;  // these 12
 	reg            adr_sel, s_sel;      // fields
 	reg            pc_ld, pc_inc;        // make up
 	reg            pc_sel, ir_ld;        // the
@@ -89,7 +89,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 	 case  ( state )
 	  
 	  RESET:     begin   //  Default Control Word Values   -- LED pattern = 1111_111
-	      W_Adr    = 3'b000; R_Adr  = 3'b000; S_Adr  = 3'b000;
+	      W_addr    = 3'b000; R_addr  = 3'b000; S_addr  = 3'b000;
 			adr_sel  = 1'b0;   s_sel  = 1'b0;
 			pc_ld    = 1'b0;   pc_inc = 1'b0;   pc_sel = 1'b0;    ir_ld  = 1'b0;
 			mw_en    = 1'b0;   rw_en  = 1'b0;   alu_op = 4'b0000;
@@ -99,7 +99,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 		end
 		
 	  FETCH:		 begin   //  IR <-- M[PC], PC <- PC+1  -- LED pattern = 1000_000
-			W_Adr    = 3'b000; R_Adr  = 3'b000; S_Adr  = 3'b000;
+			W_addr    = 3'b000; R_addr  = 3'b000; S_addr  = 3'b000;
 			adr_sel  = 1'b0;   s_sel  = 1'b0;
 			pc_ld    = 1'b0;   pc_inc = 1'b1;   pc_sel = 1'b0;   ir_ld = 1'b1;
 			mw_en    = 1'b0;   rw_en  = 1'b0;   alu_op = 4'b0000;
@@ -109,7 +109,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 		
 		
 	  DECODE:    begin   // Default Control Word, NS <- case( IR[15:9] ) -- LED pattern = 1100_0000
-		   W_Adr    = 3'b000; R_Adr  = 3'b000; S_Adr  = 3'b000;
+		   W_addr    = 3'b000; R_addr  = 3'b000; S_addr  = 3'b000;
 			adr_sel  = 1'b0;   s_sel  = 1'b0;
 			pc_ld    = 1'b0;   pc_inc = 1'b0;   pc_sel = 1'b0;   ir_ld = 1'b0;
 			mw_en    = 1'b0;   rw_en  = 1'b0;   alu_op = 4'b0000;
@@ -137,43 +137,83 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 	  end
 	  
 	  ADD:  begin   // R[ir(8:6)] <- R[ir(5:3)] + R[ir(2:0)] -- LED pattern = {ps_N,ps_Z,ps_C,5'b00000}
-	    // PUT CONTROL WORD FOR EXECUTION OF ADD HERE!!!
+	    	W_addr 	= IR[8:6];	 R_addr = IR[5:3]; S_addr = IR[2:0];
+			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
+			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0100;
+			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			status = {ps_N, ps_Z, ps_C, 5'b00000};
 		 nextstate = FETCH;
 	  end
 	  
 	  SUB:  begin   // R[ir(8:6)] <- R[ir(5:3)] - R[ir(2:0)] -- LED pattern = {ps_N,ps_Z,ps_C,5'b00001}
-	    // PUT CONTROL WORD FOR EXECUTION OF SUB HERE!!!
+			 W_addr	 = IR[8:6]; 	R_addr  = IR[5:3]; 	S_addr = IR[2:0];
+			 adr_sel  = 1'b0; 		s_sel  = 1'b0; 
+			 pc_ld 	 = 1'b0; 		pc_inc = 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			 mw_en 	 = 1'b0; 		rw_en  = 1'b1; 	alu_op = 4'b0101;
+			 {ns_N, ns_Z, ns_C} = {N, Z, C};
+			 status = {ps_N, ps_Z, ps_C, 5'b00001};
 		 nextstate = FETCH;                  
 	  end
 	  
 	  CMP:  begin   // R[ir(5:3)] <- R[ir(2:0)] -- LED pattern = {ps_N,ps_Z,ps_C,5'b00010}
-	    // PUT CONTROL WORD FOR EXECUTION OF CMP HERE!!!
+	    	 W_addr	 = 3'b000; 	R_addr  = IR[5:3]; 	S_addr = IR[2:0];
+			 adr_sel  = 1'b0; 		s_sel  = 1'b0; 
+			 pc_ld 	 = 1'b0; 		pc_inc = 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			 mw_en 	 = 1'b0; 		rw_en  = 1'b1; 	alu_op = 4'b0101;
+			 {ns_N, ns_Z, ns_C} = {N, Z, C};
+			 status = {ps_N, ps_Z, ps_C, 5'b00010};
 		 nextstate = FETCH;
 	  end
 	  
 	  MOV:  begin   // R[ir(8:6)] <- R[ir(2:0)] -- LED pattern = {ps_N,ps_Z,ps_C,5'b00011}
-	    // PUT CONTROL WORD FOR EXECUTION OF MOV HERE!!!
+	    	W_addr 	= IR[8:6];	 R_addr = 3'b000; S_addr = IR[2:0];
+			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
+			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0000;
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
+			status = {ps_N, ps_Z, ps_C, 5'b00011};
 		 nextstate = FETCH;
 	  end
 	  
 	  SHL:  begin   // R[ir(8:6)] <- R[ir(2:0)] << 1 -- LED pattern = {ps_N,ps_Z,ps_C,5'b00100}
-	    // PUT CONTROL WORD FOR EXECUTION OF SHL HERE!!!
-		 nextstate = FETCH;
+			W_addr 	= IR[8:6];	 R_addr = 3'b000; S_addr = IR[2:0];
+			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
+			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0111;
+			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			status = {ps_N, ps_Z, ps_C, 5'b00100};
+		nextstate = FETCH;
 	  end
 	  
 	  SHR:  begin   // R[ir(8:6)] <- R[ir(2:0)] >> 1 -- LED pattern = {ps_N,ps_Z,ps_C,5'b00101}
-	    // PUT CONTROL WORD FOR EXECUTION OF SHR HERE!!!
-		 nextstate = FETCH;
+			W_addr 	= IR[8:6];	 R_addr = 3'b000; S_addr = IR[2:0];
+			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
+			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0110;
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
+			status = {ps_N, ps_Z, ps_C, 5'b00101};
+		nextstate = FETCH;
 	  end
 	  
 	  INC:  begin   // R[ir(8:6)] <- R[ir(2:0)] + 1 -- LED pattern = {ps_N,ps_Z,ps_C,5'b00110}
-	    // PUT CONTROL WORD FOR EXECUTION OF INC HERE!!!
-		 nextstate = FETCH;
+			W_addr 	= IR[8:6];	 R_addr = 3'b000; S_addr = IR[2:0];
+			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
+			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0110;
+			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			status = {ps_N, ps_Z, ps_C, 5'b0010};
+		nextstate = FETCH;
 	  end
 	  
 	  DEC:  begin   // R[ir(8:6)] <- R[ir(2:0)] -1 -- LED pattern = {ps_N,ps_Z,ps_C,5'b00111}
-	    // PUT CONTROL WORD FOR EXECUTION OF DEC HERE!!!
-		 nextstate = FETCH;
+			W_adr 	= IR[8:6];	 R_adr = 3'b00; S_adr = IR[2:0];
+			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
+			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0011;
+			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			status = {ps_N, ps_Z, ps_C, 5'b00111};
+		nextstate = FETCH;
 	  end
 	  
 	  LD:   begin   // R[ir(8:6)] <- M[ R[ir(2:0) ] -- LED pattern = {ps_N,ps_Z,ps_C,5'b01000}
