@@ -35,7 +35,7 @@ module CPU_EU(clk, reset, Din, we, addr_sel, pc_sel, sel, pc_ld, pc_inc, ir_ld,
 	reg_IR   IR  (clk, reset, ir_ld, Din, ir_Q);
 	
     // SignExt
-    assign ext_out = {{8{IR[7]}}, IR[7:0]};
+    assign ext_out = {{8{IR[7]}}, ir_Q[7:0]};
     
     // Offset
     assign offset = pc_Q + ext_out;

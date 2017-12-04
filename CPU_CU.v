@@ -191,7 +191,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
 			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0110;
-			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
+			{ns_N, ns_Z, ns_C} = {N, Z, C};
 			status = {ps_N, ps_Z, ps_C, 5'b00101};
 		nextstate = FETCH;
 	  end
@@ -221,7 +221,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
             adr_sel 	= 1'b1; 		 s_sel = 1'b1;
 			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0001;
-			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
 			status = {ps_N, ps_Z, ps_C, 5'b01000};
 		 nextstate = FETCH;                  
 	  end
@@ -231,7 +231,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 			adr_sel 	= 1'b1; 		 s_sel = 1'b0;
 			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b1; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
-			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
 			status = {ps_N, ps_Z, ps_C, 5'b01001};
 		 nextstate = FETCH;
 	  end
@@ -241,37 +241,49 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 			adr_sel 	= 1'b0; 		 s_sel = 1'b1;
 			pc_ld 	= 1'b0; 		 pc_inc= 1'b1; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b1; 	alu_op = 4'b0000;
-			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
 			status = {ps_N, ps_Z, ps_C, 5'b01010};
 		 nextstate = FETCH;
 	  end
 	  
 	  JE:  begin    // if (ps_Z = 1) PC <-- PC + se_IR[7:0] else PC <- PC -- LED pattern = {ps_N,ps_Z,ps_C,5'b01100}
             W_addr 	= 3'b000;	 R_addr = 3'b000; S_addr = 3'b000;
-			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
-			pc_ld 	= 1'b1; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			adr_sel = 1'b0; 		 s_sel = 1'b0;
+            if(ps_Z==1)
+                pc_ld=1'b1;
+            else
+                pc_ld=1'b0;
+			pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
-			{ns_N, ns_Z, ns_C} = {N, 1, C};
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
 			status = {ps_N, ps_Z, ps_C, 5'b01100};
 		 nextstate = FETCH;
 	  end
 	  
 	  JNE:  begin   // if (ps_Z = 0) PC <- PC + se_IR[7:0] else PC <- PC -- LED pattern = {ps_N,ps_Z,ps_C,5'b01101}
             W_addr 	= 3'b000;	 R_addr = 3'b000; S_addr = 3'b000;
-			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
-			pc_ld 	= 1'b1; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			adr_sel = 1'b0; 		 s_sel = 1'b0;
+            if(ps_Z==0)
+                pc_ld=1'b1;
+            else
+                pc_ld=1'b0;
+			pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
-			{ns_N, ns_Z, ns_C} = {N, 0, C};
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
 			status = {ps_N, ps_Z, ps_C, 5'b01101};
 		 nextstate = FETCH;
 	  end
 	  
 	  JC:  begin   // if (ps_C = 1) PC <- PC + se_IR[7:0] else PC <- PC -- LED pattern = {ps_N,ps_Z,ps_C,5'b01110}
            W_addr 	= 3'b000;	 R_addr = 3'b000; S_addr = 3'b000;
-           adr_sel 	= 1'b0; 		 s_sel = 1'b0;
-           pc_ld 	= 1'b1; 		 pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
-           mw_en 	= 1'b0; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
-           {ns_N, ns_Z, ns_C} = {N, Z, 1};
+			adr_sel = 1'b0; 		 s_sel = 1'b0;
+            if(ps_C==1)
+                pc_ld=1'b1;
+            else
+                pc_ld=1'b0;
+			pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+			mw_en 	= 1'b0; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
+           {ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
            status = {ps_N, ps_Z, ps_C, 5'b01110};
 		 nextstate = FETCH;
 	  end
@@ -281,28 +293,28 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 			adr_sel 	= 1'b0; 		 s_sel = 1'b0;
 			pc_ld 	= 1'b0; 		 pc_inc= 1'b0; 	pc_sel = 1'b1; ir_ld = 1'b0;
 			mw_en 	= 1'b0; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
-			{ns_N, ns_Z, ns_C} = {N, Z, C};
+			{ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
 			status = {ps_N, ps_Z, ps_C, 5'b01111};
 		 nextstate = FETCH;
 	  end
 	  
 	  HALT:  begin   // Default Control Word Values -- LED pattern = {ps_N,ps_Z,ps_C,5'b01011}
-             W_addr  = 3'b000;  R_addr = 3'b000;    S_addr = 3'b000;
-			 adr_sel = 1'b0;    s_sel = 1'b0;
-			 pc_ld 	 = 1'b0; 	pc_inc= 1'b0;       pc_sel = 1'b0;      ir_ld = 1'b0;
-		 	 mw_en 	 = 1'b0;    rw_en = 1'b0;       alu_op = 4'b0000;
-			 {ns_N, ns_Z, ns_C} = {N, Z, C};
-			 status = {ps_N, ps_Z, ps_C, 5'b01011};
+         W_addr    = 3'b000; R_addr  = 3'b000; S_addr  = 3'b000;
+			adr_sel  = 1'b0;   s_sel  = 1'b0;
+			pc_ld    = 1'b0;   pc_inc = 1'b0;   pc_sel = 1'b0;    ir_ld  = 1'b0;
+			mw_en    = 1'b0;   rw_en  = 1'b0;   alu_op = 4'b0000;
+			{ns_N,ns_Z,ns_C} = 3'b0;
+			status = {ps_N, ps_Z, ps_C, 5'b01011};
 		 nextstate = HALT;                          // loop here forever
 	  end
 	  
 	  ILLEGAL_OP:  begin   //Default Control Word Values -- LED pattern = 1111_0000
-                   W_addr  = 3'b000;  R_addr = 3'b000;    S_addr = 3'b000;
-                   adr_sel = 1'b0;    s_sel = 1'b0;
-                   pc_ld 	 = 1'b0; 	pc_inc= 1'b0;       pc_sel = 1'b0;      ir_ld = 1'b0;
-                   mw_en 	 = 1'b0;    rw_en = 1'b0;       alu_op = 4'b0000;
-                   {ns_N, ns_Z, ns_C} = {N, Z, C};
-                   status = {8'b1111_0000};
+          W_addr    = 3'b000; R_addr  = 3'b000; S_addr  = 3'b000;
+			adr_sel  = 1'b0;   s_sel  = 1'b0;
+			pc_ld    = 1'b0;   pc_inc = 1'b0;   pc_sel = 1'b0;    ir_ld  = 1'b0;
+			mw_en    = 1'b0;   rw_en  = 1'b0;   alu_op = 4'b0000;
+			{ns_N,ns_Z,ns_C} = 3'b0;
+			status = 8'hF0;
 		 nextstate = ILLEGAL_OP;                    // loop here forever
 	  end
 	  
