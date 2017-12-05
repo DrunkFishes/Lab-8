@@ -14,28 +14,31 @@
  *					
  * Notes:
  *******************************************************************************/
-module CPU_EU(clk, reset, Din, we, addr_sel, pc_sel, sel, pc_ld, pc_inc, ir_ld,
-              C, N, Z, Addr_out, Dout);
+module CPU_EU(clk, reset, Din, W_Adr, R_Adr, S_Adr, ALU_Op, rw_en, addr_sel, pc_sel, S_sel, pc_ld, pc_inc, ir_ld,
+              C, N, Z, Addr_out, Dout, IR_out);
 
-	input         clk, reset, we, sel, addr_sel, pc_sel, pc_ld, pc_inc, ir_ld;
-	input  [15:0]  Din;
+	input         clk, reset, rw_en, S_sel, addr_sel, pc_sel, pc_ld, pc_inc, ir_ld;
+    input   [2:0] W_Adr, R_Adr, S_Adr;
+    input   [3:0] ALU_Op;
+	input  [15:0] Din;
 	output        C,N,Z;
-	output [15:0] Addr_out, Dout;
-	wire   [15:0] Reg_out, Alu_out, ir_Q, pc_Q, ext_out, offset, Pmux_out;
+	output [15:0] Addr_out, Dout, IR_out;
+	wire   [15:0] Reg_out, Alu_out, pc_Q, ext_out, offset, Pmux_out;
 	
-	//integer_datapath      (clk, reset, W_En, S_Sel,   W_Adr  ,   R_Adr  ,
-	integer_datapath    IDCP(clk, reset,  we ,  sel , ir_Q[8:6], ir_Q[5:3],
-    //                         S_Adr  ,   Alu_ Op  ,   DS, C, N, Z, Reg_Out, Alu_Out)
-                             ir_Q[2:0], ir_Q[15:12],  Din, C, N, Z, Reg_out,  Dout);
-							   
-    //reg_PC     (clk, reset,   ld ,   inc ,  Din, Dout)
-	reg_PC   PC  (clk, reset, pc_ld, pc_inc, Dout, pc_Q);
+    
+    //integer_datapath      (clk, reset,  W_En, S_Sel, W_Adr, R_Adr, S_Adr,
+	integer_datapath    IDCP(clk, reset, rw_en, S_sel, W_Adr, R_Adr, S_Adr,
+                        //   Alu_Op, DS,  C, N, Z, Reg_Out, Alu_Out);
+                             ALU_Op, Din, C, N, Z, Reg_out, Alu_Out);
+    
+    //reg_PC     (clk, reset,   ld ,   inc ,    Din  , Dout)
+	reg_PC   PC  (clk, reset, pc_ld, pc_inc, Pmux_out, pc_Q);
     
     //reg_IR     (clk, reset,   ld,  Din, Dout)
-	reg_IR   IR  (clk, reset, ir_ld, Din, ir_Q);
+	reg_IR   IR  (clk, reset, ir_ld, Din, IR_out);
 	
     // SignExt
-    assign ext_out = {{8{IR[7]}}, ir_Q[7:0]};
+    assign ext_out = {{8{IR_out[7]}}, IR_out[7:0]};
     
     // Offset
     assign offset = pc_Q + ext_out;

@@ -104,6 +104,7 @@ module CPU_CU(clk, reset, IR, N, Z, C,                // control unit inputs
 			pc_ld    = 1'b0;   pc_inc = 1'b1;   pc_sel = 1'b0;   ir_ld = 1'b1;
 			mw_en    = 1'b0;   rw_en  = 1'b0;   alu_op = 4'b0000;
 			{ns_N,ns_Z,ns_C} = {ps_N,ps_Z,ps_C};        // flags remain the same
+            status = 8'h80;
 			nextstate = DECODE;
 		end
 		

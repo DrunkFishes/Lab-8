@@ -20,11 +20,8 @@ module alu16(R, S, Alu_op, Y, N, Z, C);
 	input 	[ 15:0] R, S;
 	input 	[ 3:0]  Alu_op;
 	
-	output 	[ 15:0] Y;
-	output 			N, Z, C;
-	
-	reg		[ 15:0] Y;
-	reg				N, Z, C;
+	output 	[ 15:0] Y;          reg [15:0] Y;
+	output 			N, Z, C;    reg        N, Z, C;
 	
 	always @ (R or S or Alu_op) begin
 		case (Alu_op)
