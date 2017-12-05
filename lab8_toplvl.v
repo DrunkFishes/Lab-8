@@ -1,23 +1,22 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    15:43:27 12/04/2017 
-// Design Name: 
-// Module Name:    lab8_toplvl 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
-//////////////////////////////////////////////////////////////////////////////////
+ /*******************************************************************************
+ * Author:   Benjamin Adinata
+ *           Steven Phan
+ * Email:	 benjaminadinata@yahoo.com
+ *           1anh21@gmail.com
+ * Filename: lab8_toplvl.v
+ * Date:     December 5, 2017
+ * Version:  1.5
+ * Purpose:  The purpose of this module is to allow us to test the RISC Processor
+ *           with the memory file and verify that it is functioning correctly. This
+ *           module instantiates the RISC Processor module, the memory module, the
+ *           Display Controller Module, the one shot module, and the clk_500Hz
+ *           module. We also created a counter to allow us to step through memory.
+ *           		
+ * Notes:    This module only requires the use of the step clk and step mem buttons
+ *           and the dump mem switch. All instructions are contained in memory and
+ *           are translated by the Control Unit.
+ *******************************************************************************/
 module lab8_toplvl(clk, reset, step_mem, step_clk, dump_mem, An, a, b, c, d, e, f, g, status);
     input clk, reset, step_mem, step_clk, dump_mem;
     output a, b, c, d, e, f, g;
