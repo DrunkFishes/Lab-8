@@ -23,13 +23,13 @@ module CPU_EU(clk, reset, Din, W_Adr, R_Adr, S_Adr, ALU_Op, rw_en, addr_sel, pc_
 	input  [15:0] Din;
 	output        C,N,Z;
 	output [15:0] Addr_out, Dout, IR_out;
-	wire   [15:0] Reg_out, Alu_out, pc_Q, ext_out, offset, Pmux_out;
+	wire   [15:0] Reg_out, pc_Q, ext_out, offset, Pmux_out;
 	
     
     //integer_datapath      (clk, reset,  W_En, S_Sel, W_Adr, R_Adr, S_Adr,
 	integer_datapath    IDCP(clk, reset, rw_en, S_sel, W_Adr, R_Adr, S_Adr,
                         //   Alu_Op, DS,  C, N, Z, Reg_Out, Alu_Out);
-                             ALU_Op, Din, C, N, Z, Reg_out, Alu_Out);
+                             ALU_Op, Din, C, N, Z, Reg_out, Dout);
     
     //reg_PC     (clk, reset,   ld ,   inc ,    Din  , Dout)
 	reg_PC   PC  (clk, reset, pc_ld, pc_inc, Pmux_out, pc_Q);

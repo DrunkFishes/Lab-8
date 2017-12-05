@@ -34,8 +34,8 @@ module lab8_toplvl(clk, reset, step_mem, step_clk, dump_mem, An, a, b, c, d, e, 
     one_shot    stepm(step_mem, clk_500, reset, stepm_out);
     one_shot    stepc(step_clk, clk_500, reset, stepc_out);
     
-    //RISC_16       (clk, reset,   addr  ,   Dout ,    Din  , status )
-    RISC_16     RISC(stepc_out, reset, addr, Mem_Din, RISC_Din, status);
+    //RISC_16       (clk, reset,   addr  ,   Dout ,    Din  , status, mw_en)
+    RISC_16     RISC(stepc_out, reset, addr, Mem_Din, RISC_Din, status, mem_we);
     
     //ram          (clk,   we  ,   addr  ,   din  ,   dout  )
     ram         mem(clk, mem_we, mem_addr, Mem_Din, RISC_Din);

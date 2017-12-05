@@ -18,10 +18,11 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module RISC_16(clk, reset, addr, Dout, Din, status);
+module RISC_16(clk, reset, addr, Dout, Din, status, mw_en);
 
 	input         clk, reset; 
 	input  [15:0] Din;
+    output        mw_en;
 	output [15:0] addr, Dout;
     output  [7:0] status;
 	
@@ -38,7 +39,7 @@ module RISC_16(clk, reset, addr, Dout, Din, status);
                         addr,     Dout, IR);
                         
     //CPU_CU           (clk, reset, IR, N, Z, C, W_addr, R_addr, S_addr, adr_sel,
-    CPU_CU      Control(clk, reset, IR, N, Z, C, W_addr, R_addr, S_addr, adr_sel, 
+    CPU_CU      Control(clk, reset, IR, N, Z, C, W_addr, R_addr, S_addr, addr_sel, 
                     //  s_sel, pc_ld, pc_inc, pc_sel, ir_ld, mw_en, rw_en, alu_op,  
                         s_sel, pc_ld, pc_inc, pc_sel, ir_ld, mw_en, rw_en, Alu_Op,
                     //  status)
