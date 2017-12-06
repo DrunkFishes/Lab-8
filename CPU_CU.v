@@ -259,20 +259,16 @@ module CPU_CU(clk, reset, IR, N, Z, C,               // control unit inputs
           nextstate = FETCH;
         end
 	  
-	  JE:  begin    // if (ps_Z = 1) PC <-- PC + se_IR[7:0] else PC <- PC
-                    // LED pattern = {ps_N,ps_Z,ps_C,5'b01100}
-          W_addr  = 3'b000;	R_addr = 3'b000; S_addr = 3'b000;
-          adr_sel = 1'b0;   s_sel = 1'b0;
-          pc_inc  = 1'b0; 	pc_sel = 1'b0;   ir_ld  = 1'b0;
-          mw_en   = 1'b0;   rw_en = 1'b0; 	 alu_op = 4'b0000;
-          if(ps_Z == 1)
-            pc_ld = 1'b1;
-          else
-            pc_ld = 1'b0;
-          {ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
-          status = {ps_N, ps_Z, ps_C, 5'b01100};
-          nextstate = FETCH;
-        end
+	  JE:  begin    // if (ps_Z = 1) PC <-- PC + se_IR[7:0] else PC <- PC -- LED pattern = {ps_N,ps_Z,ps_C,5'b01100}
+            W_addr 	= 3'b000; R_addr = 3'b000; S_addr = 3'b000;
+	   adr_sel = 1'b0;  s_sel = 1'b0;
+           pc_ld = ps_Z;
+	   pc_inc= 1'b0; 	pc_sel = 1'b0; ir_ld = 1'b0;
+	   mw_en 	= 1'b0; 		 rw_en = 1'b0; 	alu_op = 4'b0000;
+	  {ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
+	   status = {ps_N, ps_Z, ps_C, 5'b01100};
+		 nextstate = FETCH;
+	  end
 	  
 	  JNE:  begin   // if (ps_Z = 0) PC <- PC + se_IR[7:0] else PC <- PC
                     // LED pattern = {ps_N,ps_Z,ps_C,5'b01101}
@@ -304,15 +300,15 @@ module CPU_CU(clk, reset, IR, N, Z, C,               // control unit inputs
           nextstate = FETCH;
         end
 	  
-	  JMP:  begin    // PC <- R[ir(2:0)]
-                     // LED pattern = {ps_N,ps_Z,ps_C,5'b01111}
-          W_addr  = 3'b000;	R_addr = 3'b000; S_addr = IR[2:0];
-          adr_sel = 1'b0; 	s_sel  = 1'b0;
-          pc_ld   = 1'b0; 	pc_inc = 1'b0; 	 pc_sel = 1'b1;   ir_ld = 1'b0;
-          mw_en   = 1'b0; 	rw_en  = 1'b0; 	 alu_op = 4'b0000;
-          {ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
-          status = {ps_N, ps_Z, ps_C, 5'b01111};
+	  JMP:  begin    // PC <- R[ir(2:0)] -- LED pattern = {ps_N,ps_Z,ps_C,5'b01111}
+          W_addr 	= 3'b000; R_addr = 3'b000; S_addr = IR[2:0];
+	  adr_sel 	= 1'b0;   s_sel = 1'b0;
+	  pc_ld 	= 1'b1;   pc_inc= 1'b0;   pc_sel = 1'b1; ir_ld = 1'b0;
+	  mw_en 	= 1'b0;   rw_en = 1'b0;   alu_op = 4'b0000;
+	  {ns_N, ns_Z, ns_C} = {ps_N, ps_Z, ps_C};
+	  status = {ps_N, ps_Z, ps_C, 5'b01111};
           nextstate = FETCH;
+	  end
         end
 	  
 	  HALT:  begin   // Default Control Word Values
