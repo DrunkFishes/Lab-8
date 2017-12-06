@@ -19,7 +19,6 @@ module alu16(R, S, Alu_op, Y, N, Z, C);
 
 	input 	[ 15:0] R, S;
 	input 	[ 3:0]  Alu_op;
-	
 	output 	[ 15:0] Y;          reg [15:0] Y;
 	output 			N, Z, C;    reg        N, Z, C;
 	
@@ -52,9 +51,7 @@ module alu16(R, S, Alu_op, Y, N, Z, C);
 		if (Y == 16'b0)
 			Z = 1'b1;
 		else
-			Z = 1'b0;
-			
-	end
-			
+			Z = 1'b0;	
+	end		
 
 endmodule
